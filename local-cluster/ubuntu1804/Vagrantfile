@@ -64,13 +64,9 @@ EOF
   systemctl restart containerd
 
   # bind private ip to kubelet
-  #sed -i "/KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IPADDR" /etc/default/kubelet
   IPADDR=$(ip a show eth1 | grep inet | grep -v inet6 | awk '{print $2}' | cut -f1 -d/)
   echo "KUBELET_EXTRA_ARGS=--node-ip=$IPADDR" >> /etc/default/kubelet
   #echo "KUBELET_EXTRA_ARGS=--cgroup-driver=systemd" >> /etc/default/kubelet
-  # restart kubelet
-  #systemctl daemon-reload
-  #systemctl restart kubelet
   
   # Install iSCSI for OpenEBS
   apt-get update && apt-get install open-iscsi
@@ -95,14 +91,6 @@ EOF
   export KUBECONFIG=/etc/kubernetes/admin.conf
   kubectl apply -f https://raw.githubusercontent.com/kudoh/k8s-hands-on/master/local-cluster/kube-flannel-0.11.yml
   
-  # Control PlaneをDaemonSetとして実行する(SelfHosting)
-  # これをやらないとAPI Server からCoreDNSにアクセスできずAdmission WebHookが機能しなかった
-  # kubeadmはデフォルトでStatic PodとしてControl Planeを起動していて、これだとPod内の/etc/resolv.confがOS側と同じになる
-  #kubeadm alpha self-hosting pivot -f
-
-  # Control Plane -> Service Net(10.96.0.0/12)への経路を追加
-  #ip route add 10.96.0.0/12 via 10.244.0.1 dev cni0
-
   # kubeadm join スクリプト作成
   SHARED_DIR=/home/vagrant/shared
   mkdir -p $SHARED_DIR
