@@ -32,8 +32,6 @@ if [[ $rc != 0 ]] ;then
   exit 1
 fi
 
-sleep 30
-
 # Nginx Ingress Controller
 kubectl create ns nginx-ingress
 helm upgrade nginx-ingress --install stable/nginx-ingress  --namespace nginx-ingress --set controller.replicaCount=2 --set rbac.create=true --wait
