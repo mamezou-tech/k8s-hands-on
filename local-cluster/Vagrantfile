@@ -117,12 +117,20 @@ EOF
   kubeadm token create --print-join-command > /home/vagrant/shared/kubeadm_join_cmd.sh
   chmod +x /home/vagrant/shared/kubeadm_join_cmd.sh
   
-  # ホストOS向けkubectlアカウント作成
-  kubectl create serviceaccount tester
-  SECRET_NAME=$(kubectl get serviceaccount tester -o jsonpath='{.secrets[0].name}')
-  kubectl create clusterrolebinding --clusterrole=cluster-admin --serviceaccount=default:tester tester-admin
-  kubectl get secret $SECRET_NAME -o jsonpath='{.data.token}' | base64 --decode > /home/vagrant/shared/token
-  kubectl get secret $SECRET_NAME -o jsonpath='{.data.ca\\.crt}' | base64 --decode > /home/vagrant/shared/k8s-ca.crt
+  # generating client certificate
+  openssl req -new -newkey rsa:2048 -nodes \
+    -keyout $SHARED_DIR/k8s-admin.key \
+    -out k8s-admin.csr \
+    -subj "/CN=admin/O=mamezou-sre"
+  chmod 600 $SHARED_DIR/k8s-admin.key
+  MASTER_PKI=/etc/kubernetes/pki
+  openssl x509 -req -days 360 \
+    -in k8s-admin.csr \
+    -CA $MASTER_PKI/ca.crt \
+    -CAkey $MASTER_PKI/ca.key \
+    -CAcreateserial \
+    -out $SHARED_DIR/k8s-admin.crt -sha256
+  kubectl create clusterrolebinding --clusterrole=cluster-admin --user admin local-admin
 
   SCRIPT
 
