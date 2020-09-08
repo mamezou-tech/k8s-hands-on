@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-k8s_version = "1.17"
+k8s_version = "1.19"
 
 Vagrant.configure("2") do |config|
 

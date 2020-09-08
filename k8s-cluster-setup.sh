@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MASTER_IP=172.16.10.11
-SHARED_DIR=${1:-./local-cluster/shared}
+SHARED_DIR=${1:-./local-cluster/ubuntu1804/shared}
  
 kubectl config set-cluster local-k8s --server=https://${MASTER_IP}:6443 \
   --certificate-authority=${SHARED_DIR}/ca.crt --embed-certs
@@ -20,11 +20,11 @@ if [[ $rc != 0 ]] ;then
   curl -L https://git.io/get_helm.sh | bash
 fi
 # add stable repo
-helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm repo add bitnami https://charts.bitnami.com/bitnami
 
 # MetalLB
 kubectl create namespace metallb-system
-helm upgrade metallb --install stable/metallb --namespace metallb-system --wait
+helm upgrade metallb --install bitnami/metallb --namespace metallb-system --wait
 kubectl apply -f https://raw.githubusercontent.com/kudoh/k8s-hands-on/master/ingress/metallb-configmap.yaml
 rc=$?
 if [[ $rc != 0 ]] ;then
@@ -33,8 +33,11 @@ if [[ $rc != 0 ]] ;then
 fi
 
 # Nginx Ingress Controller
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
 kubectl create ns nginx-ingress
-helm upgrade nginx-ingress --install stable/nginx-ingress  --namespace nginx-ingress --set controller.replicaCount=2 --set rbac.create=true --wait
+helm upgrade nginx-ingress --install ingress-nginx/ingress-nginx \
+   --namespace nginx-ingress --set controller.replicaCount=2 --set rbac.create=true --wait
 rc=$?
 if [[ $rc != 0 ]] ;then
   echo "unable to install Ingress Controller..."
