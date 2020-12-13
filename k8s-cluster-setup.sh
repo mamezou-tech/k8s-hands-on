@@ -1,7 +1,8 @@
 #!/bin/bash
 
 MASTER_IP=172.16.10.11
-SHARED_DIR=${1:-./local-cluster/ubuntu1804/shared}
+BASEDIR=$(dirname "$0")
+SHARED_DIR=${1:-$BASEDIR/local-cluster/ubuntu1804/shared}
  
 kubectl config set-cluster local-k8s --server=https://${MASTER_IP}:6443 \
   --certificate-authority=${SHARED_DIR}/ca.crt --embed-certs
@@ -54,7 +55,6 @@ helm repo add openebs https://openebs.github.io/charts
 helm repo update
 helm upgrade openebs --install openebs/openebs --namespace openebs --version 2.3.1 \
   --set apiserver.sparse.enabled=true \
-  --set ndm.sparse.path="/var/openebs/sparse" \
   --set ndm.sparse.count=1 \
   --set ndm.sparse.size=32212254720 \
   --wait
