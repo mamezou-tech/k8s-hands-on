@@ -89,7 +89,7 @@ EOF
   # https://github.com/coreos/flannel/blob/master/Documentation/troubleshooting.md#vagrant
   # https://medium.com/@anilkreddyr/kubernetes-with-flannel-understanding-the-networking-part-1-7e1fe51820e4
   export KUBECONFIG=/etc/kubernetes/admin.conf
-  kubectl apply -f https://raw.githubusercontent.com/kudoh/k8s-hands-on/master/local-cluster/kube-flannel-0.11.yml
+  kubectl apply -f https://raw.githubusercontent.com/mamezou-tech/k8s-hands-on/master/local-cluster/kube-flannel-0.13.yml
   
   # kubeadm join スクリプト作成
   SHARED_DIR=/home/vagrant/shared
