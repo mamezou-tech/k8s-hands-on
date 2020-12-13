@@ -25,19 +25,20 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 # MetalLB
 kubectl create namespace metallb-system
 helm upgrade metallb --install bitnami/metallb --namespace metallb-system --wait
-kubectl apply -f https://raw.githubusercontent.com/kudoh/k8s-hands-on/master/ingress/metallb-configmap.yaml
 rc=$?
 if [[ $rc != 0 ]] ;then
   echo "unable to install MetalLB..."
   exit 1
 fi
+kubectl apply -f https://raw.githubusercontent.com/kudoh/k8s-hands-on/master/ingress/metallb-configmap.yaml
+sleep 5
 
 # Nginx Ingress Controller
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm repo update
 kubectl create ns nginx-ingress
 helm upgrade nginx-ingress --install ingress-nginx/ingress-nginx \
-   --namespace nginx-ingress --set controller.replicaCount=2 --set rbac.create=true --wait
+   --namespace nginx-ingress --set controller.replicaCount=2
 rc=$?
 if [[ $rc != 0 ]] ;then
   echo "unable to install Ingress Controller..."
@@ -49,7 +50,9 @@ for n in $(kubectl get node -l 'node-role.kubernetes.io/master!=' -o jsonpath='{
   kubectl label nodes $n node=openebs
 done
 kubectl create ns openebs
-helm upgrade openebs --install stable/openebs --namespace openebs --version 1.5.0 \
+helm repo add openebs https://openebs.github.io/charts
+helm repo update
+helm upgrade openebs --install openebs/openebs --namespace openebs --version 2.3.1 \
   --set apiserver.sparse.enabled=true \
   --set ndm.sparse.path="/var/openebs/sparse" \
   --set ndm.sparse.count=1 \
