@@ -17,6 +17,6 @@
     "express-validator": "^5.3.1",
     "ioredis": "^4.10.0",
     "morgan": "~1.9.1",
-    "redis-json": "^2.2.2"
+    "redis-json": "^6.0.3"
   }
 }
